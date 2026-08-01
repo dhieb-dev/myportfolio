@@ -568,22 +568,23 @@
     window.addEventListener('load', () => {
       hideLoadingScreen();
     });
+    
 document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // منع تحديث الصفحة
+    e.preventDefault(); // منع التحديث الافتراضي
 
     const form = e.target;
     const responseDiv = document.getElementById('formResponse');
     const submitBtn = document.getElementById('submitBtn');
     const originalBtnText = submitBtn.innerText;
     
-    // تغيير حالة الزر أثناء الإرسال لتبدو التجربة احترافية
+    // تغيير شكل الزر
     submitBtn.innerText = "Sending...";
     submitBtn.disabled = true;
     submitBtn.style.opacity = "0.7";
 
     const formData = new FormData(form);
 
-    // استخدام Fetch API (ستعمل 100% لوجود HTTPS على GitHub)
+    // محاولة الإرسال الحديثة عبر Fetch API
     fetch('https://web3forms.com', {
         method: 'POST',
         headers: {
@@ -596,30 +597,31 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
         responseDiv.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'dark:bg-green-950/30', 'dark:text-green-400');
         
         if (data.success) {
-            // إظهار رسالة النجاح الخضراء بداخل موقعك دون الانتقال لأي مكان
             responseDiv.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-950/30', 'dark:text-green-400');
             responseDiv.innerText = "✓ Message sent successfully!";
-            form.reset(); // تفريغ الحقول
+            form.reset(); // تفريغ الحقول عند النجاح
+            
+            // إعادة الزر لطبيعته
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
         } else {
-            responseDiv.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-950/30', 'dark:text-red-400');
-            responseDiv.innerText = "✕ Error: " + data.message;
+            // إذا رفض السيرفر الطلب لأي سبب، نتحول فوراً للإرسال التقليدي المضمون
+            triggerFallback(form);
         }
     })
     .catch(error => {
-        responseDiv.classList.remove('hidden');
-        responseDiv.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-950/30', 'dark:text-red-400');
-        responseDiv.innerText = "✕ Connection error. Please try again.";
-    })
-    .finally(() => {
-        // إعادة الزر لوضعه الطبيعي
-        submitBtn.innerText = originalBtnText;
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = "1";
+        // 💡 خطة الإنقاذ: إذا حدث أي خطأ شبكة (Network Error) حقيقي، أرسل البيانات مباشرة
+        triggerFallback(form);
     });
 });
 
-
-
+// دالة الإنقاذ للإرسال المباشر عند حدوث أي خطأ أمني أو شبكي
+function triggerFallback(formElement) {
+    formElement.action = "https://web3forms.com";
+    formElement.method = "POST";
+    formElement.submit(); // سيتم الإرسال وتحديث الصفحة بشكل كامل ومضمون 100%
+}
 
     document.addEventListener('DOMContentLoaded', () => {
       // تهيئة اللغة
