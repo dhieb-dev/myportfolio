@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dhieb Rouissi — Full-Stack Engineer</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- GSAP & ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Early Theme Script to Prevent White Flash -->
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    // تشغيل مباشر لمنع الفلاش الأبيض
+    initTheme();
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-[#0b0f17] dark:text-slate-100 transition-colors duration-300 font-sans antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- Loading Screen / Preloader -->
+  <div id="loading-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white transition-opacity duration-300 pointer-events-auto">
+    <div class="relative flex items-center justify-center">
+      <div class="w-20 h-20 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
+      <span class="absolute text-xl font-black bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">D</span>
+    </div>
+    <p class="mt-4 text-sm font-semibold tracking-widest text-slate-400 animate-pulse uppercase" data-i18n="loading">Loading...</p>
+  </div>
+
+  <!-- Header / Navigation -->
+  <header class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/70 dark:bg-[#0b0f17]/80 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors" dir="ltr">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <a href="#" class="text-2xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 bg-clip-text text-transparent">
+        Dhieb<span class="text-cyan-400">.</span>dev
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center space-x-8 font-medium text-sm text-slate-600 dark:text-slate-300">
+        <a href="#about" class="hover:text-blue-600 dark:hover:text-cyan-400 transition" data-i18n="nav_about">About</a>
+        <a href="#skills" class="hover:text-blue-600 dark:hover:text-cyan-400 transition" data-i18n="nav_skills">Tech Stack</a>
+        <a href="#projects" class="hover:text-blue-600 dark:hover:text-cyan-400 transition" data-i18n="nav_projects">Selected Work</a>
+        <a href="#contact" class="hover:text-blue-600 dark:hover:text-cyan-400 transition" data-i18n="nav_contact">Get in Touch</a>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <!-- Language Switcher Button -->
+        <button id="lang-toggle" aria-label="Toggle Language" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:scale-105 transition cursor-pointer border border-transparent dark:border-slate-700 text-xs font-semibold">
+          <i class="fa-solid fa-globe text-cyan-500"></i>
+          <span id="lang-label">العربية</span>
+        </button>
+
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" aria-label="Toggle Theme" class="p-2.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:scale-105 transition cursor-pointer border border-transparent dark:border-slate-700">
+          <i id="theme-icon-moon" class="fa-solid fa-moon text-cyan-400 text-lg hidden dark:inline-block"></i>
+          <i id="theme-icon-sun" class="fa-solid fa-sun text-amber-500 text-lg inline-block dark:hidden"></i>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button id="menu-toggle" aria-label="Open Menu" class="md:hidden p-2.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:scale-105 transition cursor-pointer border border-transparent dark:border-slate-700">
+          <i id="menu-icon-open" class="fa-solid fa-bars text-lg block"></i>
+          <i id="menu-icon-close" class="fa-solid fa-xmark text-lg hidden"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-[#0b0f17]/95 backdrop-blur-2xl px-6 py-6 transition-all">
+      <nav class="flex flex-col space-y-4 font-medium text-base text-slate-700 dark:text-slate-200">
+        <a href="#about" class="mobile-nav-link hover:text-cyan-400 transition" data-i18n="nav_about">About</a>
+        <a href="#skills" class="mobile-nav-link hover:text-cyan-400 transition" data-i18n="nav_skills">Tech Stack</a>
+        <a href="#projects" class="mobile-nav-link hover:text-cyan-400 transition" data-i18n="nav_projects">Selected Work</a>
+        <a href="#contact" class="mobile-nav-link hover:text-cyan-400 transition" data-i18n="nav_contact">Get in Touch</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section id="hero" class="min-h-screen flex items-center justify-center pt-24 px-6 relative overflow-hidden">
+      <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/20 dark:bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-1/4 right-10 w-80 h-80 bg-indigo-500/20 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-4xl mx-auto text-center z-10">
+        <span class="hero-anim inline-flex items-center gap-2 py-1.5 px-4 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border dark:border-cyan-800/50 mb-8">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span data-i18n="hero_badge">Available for new opportunities</span>
+        </span>
+        <h1 class="hero-anim text-4xl sm:text-6xl md:text-7xl font-black tracking-tight mb-8 leading-tight" data-i18n="hero_title">
+          Architecting <span class="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 bg-clip-text text-transparent">Digital Products</span> & Scalable Systems
+        </h1>
+        <p class="hero-anim text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-normal" data-i18n="hero_desc">
+          Hi, I'm Dhieb Rouissi. Full-Stack Engineer crafting resilient backend architectures, intuitive web applications, and immersive web experiences.
+        </p>
+        <div class="hero-anim flex flex-col sm:flex-row justify-center gap-4">
+          <a href="#projects" class="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-gradient-to-r dark:from-blue-600 dark:to-cyan-500 dark:hover:from-blue-500 dark:hover:to-cyan-400 text-white font-semibold transition shadow-lg shadow-blue-500/25 dark:shadow-cyan-500/20" data-i18n="btn_explore">
+            Explore Work
+          </a>
+          <a href="#contact" class="px-7 py-3.5 rounded-xl border border-slate-300 dark:border-slate-800 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" data-i18n="btn_contact">
+            Contact Me
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 px-6 bg-white dark:bg-[#0f1523]/60 border-y border-slate-200/60 dark:border-slate-800/60">
+      <div class="max-w-5xl mx-auto gsap-reveal">
+        <h2 class="text-3xl font-extrabold mb-12 text-center tracking-tight" data-i18n="about_title">About Me</h2>
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div class="space-y-4 text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p data-i18n="about_p1">
+              I am a passionate software engineer focused on building robust, high-performance web applications. I turn complex requirements into clean, scalable code architecture.
+            </p>
+            <p data-i18n="about_p2">
+              Specializing in the modern JavaScript ecosystem (MERN Stack: Express, React, Node.js, MongoDB), I place heavy emphasis on security standards including JWT authorization and bcrypt data hashing.
+            </p>
+          </div>
+          <div class="p-8 bg-slate-50 dark:bg-[#131b2e] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 class="font-bold text-lg mb-6 text-blue-600 dark:text-cyan-400 flex items-center gap-3">
+              <i class="fa-solid fa-shield-halved"></i> <span data-i18n="about_box_title">Engineering Discipline</span>
+            </h3>
+            <ul class="space-y-4 text-sm text-slate-600 dark:text-slate-300">
+              <li class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-blue-500 dark:text-cyan-400"></i> <span data-i18n="about_li1">Clean, modular, and maintainable code bases.</span></li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-blue-500 dark:text-cyan-400"></i> <span data-i18n="about_li2">Fully fluid & responsive user interfaces.</span></li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-blue-500 dark:text-cyan-400"></i> <span data-i18n="about_li3">Secure REST API design & data protection protocols.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="skills" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto gsap-reveal">
+        <h2 class="text-3xl font-extrabold mb-12 text-center tracking-tight" data-i18n="skills_title">Tech Stack</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-brands fa-html5 text-3xl text-orange-500 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">HTML5 / CSS3</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Frontend</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-brands fa-js text-3xl text-yellow-400 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">JavaScript</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">ES6+</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-solid fa-wind text-3xl text-cyan-400 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">Tailwind CSS</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Styling</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-brands fa-react text-3xl text-cyan-400 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">React.js</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Frontend</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-solid fa-wand-magic-sparkles text-3xl text-emerald-400 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">GSAP</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Animation</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-brands fa-node-js text-3xl text-green-500 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">Node.js</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Runtime</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-solid fa-server text-3xl text-slate-400 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">Express.js</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Backend</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-solid fa-database text-3xl text-emerald-500 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">MongoDB</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Database</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-solid fa-key text-3xl text-indigo-400 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">JWT / bcrypt</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Security</span>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 dark:hover:border-cyan-500/50 transition duration-300 group">
+            <i class="fa-brands fa-git-alt text-3xl text-red-500 mb-3 block group-hover:scale-110 transition-transform"></i>
+            <h3 class="font-bold text-base mb-1">Git / GitHub</h3>
+            <span class="text-xs text-slate-500 dark:text-slate-400">DevOps</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selected Work Section -->
+    <section id="projects" class="py-24 px-6 bg-white dark:bg-[#0f1523]/60 border-y border-slate-200/60 dark:border-slate-800/60">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-extrabold mb-16 text-center tracking-tight gsap-reveal" data-i18n="projects_title">Selected Work</h2>
+
+        <!-- Featured Projects -->
+        <div class="mb-16 gsap-reveal">
+          <h3 class="text-xl font-bold mb-8 text-blue-600 dark:text-cyan-400 flex items-center gap-3">
+            <i class="fa-solid fa-microchip"></i> <span data-i18n="proj_enterprise">Enterprise Architecture</span>
+          </h3>
+          <div class="grid md:grid-cols-1 gap-8">
+            <div class="p-8 rounded-3xl bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between">
+              <div>
+                <span class="text-xs font-bold text-blue-600 dark:text-cyan-400 tracking-wider uppercase" data-i18n="proj_tag1">Full-Stack Application</span>
+                <h4 class="text-2xl font-bold mt-2 mb-4" data-i18n="proj_p1_title">Enterprise Task Management Platform</h4>
+                <p class="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed" data-i18n="proj_p1_desc">
+                  A comprehensive collaborative management platform featuring real-time state synchronization, secure JWT authentication with bcrypt password hashing, and role-based access control (RBAC).
+                </p>
+                <div class="flex flex-wrap gap-2 mb-8">
+                  <span class="px-3 py-1 bg-white dark:bg-[#0b0f17] text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800">React</span>
+                  <span class="px-3 py-1 bg-white dark:bg-[#0b0f17] text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800">Node.js</span>
+                  <span class="px-3 py-1 bg-white dark:bg-[#0b0f17] text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800">Express</span>
+                  <span class="px-3 py-1 bg-white dark:bg-[#0b0f17] text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800">MongoDB</span>
+                  <span class="px-3 py-1 bg-white dark:bg-[#0b0f17] text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800">JWT</span>
+                  <span class="px-3 py-1 bg-white dark:bg-[#0b0f17] text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800">Tailwind</span>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <a href="#" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold text-sm rounded-xl transition" data-i18n="live_demo">Live Demo</a>
+                <a href="#" class="px-5 py-2.5 border border-slate-300 dark:border-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-200/50 dark:hover:bg-slate-800 transition" data-i18n="source_code">Source Code</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lightweight Projects -->
+        <div class="gsap-reveal">
+          <h3 class="text-xl font-bold mb-8 text-blue-600 dark:text-cyan-400 flex items-center gap-3">
+            <i class="fa-solid fa-code"></i> <span data-i18n="proj_micro">Micro-Apps & Prototypes</span>
+          </h3>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+              <div>
+                <h4 class="text-lg font-bold mb-2">Extractor Color</h4>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4" data-i18n="proj_color_desc">It outputs the colors shown in the image loaded by the color thief library.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-2.5 py-1 bg-white dark:bg-[#0b0f17] text-xs rounded-md border border-slate-200 dark:border-slate-800">Vanilla JS</span>
+                  <span class="px-2.5 py-1 bg-white dark:bg-[#0b0f17] text-xs rounded-md border border-slate-200 dark:border-slate-800">Tailwind CSS</span>
+                  <span class="px-2.5 py-1 bg-white dark:bg-[#0b0f17] text-xs rounded-md border border-slate-200 dark:border-slate-800">Color Thief</span>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <a href="https://dhieb-dev.github.io/Extractor_color/" class="text-xs font-semibold text-blue-600 dark:text-cyan-400 hover:underline" data-i18n="live_demo">Live Demo</a>
+                <a href="https://github.com/dhieb-dev/Extractor_color" class="text-xs text-slate-500 hover:underline" data-i18n="source_code">Source Code</a>
+              </div>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+              <div>
+                <h4 class="text-lg font-bold mb-2" data-i18n="proj_quran_title">The Quran & Radio Stations</h4>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4" data-i18n="proj_quran_desc">A lightweight website for Quran recitations, featuring over 230 reciters and Islamic radio stations.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-2.5 py-1 bg-white dark:bg-[#0b0f17] text-xs rounded-md border border-slate-200 dark:border-slate-800">Vanilla JS</span>
+                  <span class="px-2.5 py-1 bg-white dark:bg-[#0b0f17] text-xs rounded-md border border-slate-200 dark:border-slate-800">Tailwind CSS</span>
+                  <span class="px-2.5 py-1 bg-white dark:bg-[#0b0f17] text-xs rounded-md border border-slate-200 dark:border-slate-800">Api Open Source</span>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <a href="https://dhieb-dev.github.io/WebQuranRadios/" class="text-xs font-semibold text-blue-600 dark:text-cyan-400 hover:underline" data-i18n="live_demo">Live Demo</a>
+                <a href="https://github.com/dhieb-dev/WebQuranRadios" class="text-xs text-slate-500 hover:underline" data-i18n="source_code">Source Code</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Get in Touch Section -->
+    <section id="contact" class="py-24 px-6">
+      <div class="max-w-6xl mx-auto gsap-reveal">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl font-extrabold mb-4 tracking-tight" data-i18n="contact_title">Get in Touch</h2>
+          <p class="text-slate-600 dark:text-slate-400 max-w-lg mx-auto" data-i18n="contact_subtitle">Have a project in mind, a question, or interested in collaborating? Feel free to reach out.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-12 items-start">
+          <!-- Contact Info -->
+          <div class="space-y-8">
+            <div>
+              <h3 class="text-xl font-bold mb-6 text-slate-900 dark:text-slate-100" data-i18n="contact_info_title">Contact Information</h3>
+              <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-600 dark:text-cyan-400">
+                    <i class="fa-solid fa-envelope text-lg"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 block" data-i18n="email_label">Email Me</span>
+                    <a href="mailto:alex.morgan@example.com" class="font-semibold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-cyan-400 transition">alex.morgan@example.com</a>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-600 dark:text-cyan-400">
+                    <i class="fa-solid fa-phone text-lg"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 block" data-i18n="phone_label">Call / WhatsApp</span>
+                    <a href="tel:+1234567890" class="font-semibold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-cyan-400 transition">+1 (234) 567-890</a>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-600 dark:text-cyan-400">
+                    <i class="fa-solid fa-location-dot text-lg"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 block" data-i18n="location_label">Location</span>
+                    <span class="font-semibold text-slate-800 dark:text-slate-200" data-i18n="location_val">Remote / Available Worldwide</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-slate-200 dark:border-slate-800" />
+
+            <div>
+              <h4 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4" data-i18n="social_title">Connect On Social Media</h4>
+              <div class="flex gap-4">
+                <a href="https://github.com" target="_blank" aria-label="GitHub" class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-blue-600 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-950 transition hover:-translate-y-1">
+                  <i class="fa-brands fa-github text-xl"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn" class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-blue-600 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-950 transition hover:-translate-y-1">
+                  <i class="fa-brands fa-linkedin-in text-xl"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-blue-600 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-950 transition hover:-translate-y-1">
+                  <i class="fa-brands fa-x-twitter text-xl"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+<form id="contactForm" class="space-y-4 bg-slate-50 dark:bg-[#131b2e] p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
+    <input type="hidden" name="access_key" value="d877440b-b040-4c6b-b808-96b65287b8ef">
+    
+    <div>
+        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2" data-i18n="form_name">Your Name</label>
+        <input type="text" name="name" id="input-name" placeholder="John Doe" class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-[#0b0f17] border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-400 transition" required>
+    </div>
+    
+    <div>
+        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2" data-i18n="form_email">Your Email</label>
+        <input type="email" name="email" id="input-email" placeholder="john@example.com" class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-[#0b0f17] border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-400 transition" required>
+    </div>
+    
+    <div>
+        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2" data-i18n="form_message">Message</label>
+        <textarea rows="4" name="message" id="input-msg" placeholder="How can I help you?" class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-[#0b0f17] border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-400 transition" required></textarea>
+    </div>
+    
+    <button type="submit" id="submitBtn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-500/20 dark:shadow-cyan-500/20 cursor-pointer" data-i18n="form_submit">
+        Send Message
+    </button>
+    
+    <!-- مكان ظهور رسالة النجاح أو الخطأ للمستخدم (مخفية افتراضياً) -->
+    <div id="formResponse" class="text-sm font-medium mt-2 p-3 rounded-xl hidden"></div>
+</form>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-8 px-6 border-t border-slate-200 dark:border-slate-800/80 text-center text-sm text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p data-i18n="footer_rights">© 2026 Dhieb Rouissi. All rights reserved.</p>
+      <div class="flex gap-5 text-slate-600 dark:text-slate-400">
+        <a href="https://github.com" target="_blank" aria-label="GitHub" class="hover:text-blue-600 dark:hover:text-cyan-400 transition"><i class="fa-brands fa-github text-lg"></i></a>
+        <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn" class="hover:text-blue-600 dark:hover:text-cyan-400 transition"><i class="fa-brands fa-linkedin-in text-lg"></i></a>
+        <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="hover:text-blue-600 dark:hover:text-cyan-400 transition"><i class="fa-brands fa-x-twitter text-lg"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main Scripts Logic -->
+  <script>
+    const translations = {
+      en: {
+        loading: "Loading...",
+        nav_about: "About",
+        nav_skills: "Tech Stack",
+        nav_projects: "Selected Work",
+        nav_contact: "Get in Touch",
+        hero_badge: "Available for new opportunities",
+        hero_title: 'Architecting <span class="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 bg-clip-text text-transparent">Digital Products</span> & Scalable Systems',
+        hero_desc: "Hi, I'm Dhieb Rouissi. Full-Stack Engineer crafting resilient backend architectures, intuitive web applications, and immersive web experiences.",
+        btn_explore: "Explore Work",
+        btn_contact: "Contact Me",
+        about_title: "About Me",
+        about_p1: "I am a passionate software engineer focused on building robust, high-performance web applications. I turn complex requirements into clean, scalable code architecture.",
+        about_p2: "Specializing in the modern JavaScript ecosystem (MERN Stack: Express, React, Node.js, MongoDB), I place heavy emphasis on security standards including JWT authorization and bcrypt data hashing.",
+        about_box_title: "Engineering Discipline",
+        about_li1: "Clean, modular, and maintainable code bases.",
+        about_li2: "Fully fluid & responsive user interfaces.",
+        about_li3: "Secure REST API design & data protection protocols.",
+        skills_title: "Tech Stack",
+        projects_title: "Selected Work",
+        proj_enterprise: "Enterprise Architecture",
+        proj_tag1: "Full-Stack Application",
+        proj_p1_title: "Enterprise Task Management Platform",
+        proj_p1_desc: "A comprehensive collaborative management platform featuring real-time state synchronization, secure JWT authentication with bcrypt password hashing, and role-based access control (RBAC).",
+        live_demo: "Live Demo",
+        source_code: "Source Code",
+        proj_micro: "Micro-Apps & Prototypes",
+        proj_color_desc: "It outputs the colors shown in the image loaded by the color thief library.",
+        proj_quran_title: "The Quran & Radio Stations",
+        proj_quran_desc: "A lightweight website for Quran recitations, featuring over 230 reciters and Islamic radio stations.",
+        contact_title: "Get in Touch",
+        contact_subtitle: "Have a project in mind, a question, or interested in collaborating? Feel free to reach out.",
+        contact_info_title: "Contact Information",
+        email_label: "Email Me",
+        phone_label: "Call / WhatsApp",
+        location_label: "Location",
+        location_val: "Remote / Available Worldwide",
+        social_title: "Connect On Social Media",
+        form_name: "Your Name",
+        form_email: "Your Email",
+        form_message: "Message",
+        form_submit: "Send Message",
+        footer_rights: "© 2026 Dhieb Rouissi. All rights reserved.",
+        ph_name: "John Doe",
+        ph_msg: "How can I help you?"
+      },
+      ar: {
+        loading: "جاري التحميل...",
+        nav_about: "من أنا",
+        nav_skills: "التقنيات",
+        nav_projects: "أعمالي",
+        nav_contact: "تواصل معي",
+        hero_badge: "متاح لفرص عمل جديدة",
+        hero_title: 'هندسة <span class="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 bg-clip-text text-transparent">المنتجات الرقمية</span> والأنظمة القابلة للتوسع',
+        hero_desc: "مرحباً، أنا ذياب الرويسي. مهندس Full-Stack أعمل على بناء معماريات برمجية متينة، وتطبيقات ويب سلسة وتجارب تفاعلية فريدة.",
+        btn_explore: "استكشف الأعمال",
+        btn_contact: "تواصل معي",
+        about_title: "من أنا",
+        about_p1: "أنا مهندس برمجيات شغوف بإنشاء تطبيقات ويب عالية الأداء ومتكاملة. أقوم بتحويل المتطلبات المعقدة إلى كود نظيف وقابل للتوسع.",
+        about_p2: "متخصص في بيئة عمل JavaScript الحديثة (MERN Stack: Express, React, Node.js, MongoDB)، مع التركيز العالي على معايير الأمان مثل المصادقة عبر JWT وتشفير البيانات بـ bcrypt.",
+        about_box_title: "الانضباط الهندسي",
+        about_li1: "بنية برمجية نظيفة، موديولية وسهلة الصيانة.",
+        about_li2: "واجهات مستخدم متجاوبة وسلسة للغاية.",
+        about_li3: "تصميم REST API آمن مع بروتوكولات حماية البيانات.",
+        skills_title: "التقنيات المستخدمة",
+        projects_title: "أبرز المشاريع",
+        proj_enterprise: "معمارية المؤسسات",
+        proj_tag1: "تطبيق Full-Stack",
+        proj_p1_title: "منصة إدارة المهام للمؤسسات",
+        proj_p1_desc: "منصة إدارة تعاونية متكاملة تتميز بـ المزامنة الفورية للبيانات، مصادقة JWT آمنة مع تشفير bcrypt للكلمات السرية، ونظام صلاحيات متقدم (RBAC).",
+        live_demo: "معاينة مباشرة",
+        source_code: "الكود المصدري",
+        proj_micro: "تطبيقات مصغرة ونماذج",
+        proj_color_desc: "تطبيق لاستخراج الألوان من أي صورة يتم تحميلها عبر مكتبة Color Thief.",
+        proj_quran_title: "القرآن الكريم وإذاعات الراديو",
+        proj_quran_desc: "موقع خفيف لتلاوات القرآن الكريم يضم أكثر من 230 قارئاً مع إذاعات إسلامية مباشرة.",
+        contact_title: "تواصل معي",
+        contact_subtitle: "هل لديك مشروع، استفسار، أو ترغب في التعاون؟ لا تتردد في التواصل معي.",
+        contact_info_title: "معلومات الاتصال",
+        email_label: "البريد الإلكتروني",
+        phone_label: "الهاتف / واتساب",
+        location_label: "الموقع",
+        location_val: "عن بُعد / متاح لكافة دول العالم",
+        social_title: "تواصل عبر شبكات التواصل",
+        form_name: "الاسم",
+        form_email: "البريد الإلكتروني",
+        form_message: "الرسالة",
+        form_submit: "إرسال الرسالة",
+        footer_rights: "© 2026 ذياب الرويسي. جميع الحقوق محفوظة.",
+        ph_name: "محمد علي",
+        ph_msg: "كيف يمكنني مساعدتك؟"
+      }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'en';
+
+    function hideLoadingScreen() {
+      const loader = document.getElementById('loading-screen');
+      if (loader) {
+        loader.classList.add('opacity-0');
+        setTimeout(() => {
+          loader.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    function showLoadingScreen() {
+      const loader = document.getElementById('loading-screen');
+      if (loader) {
+        loader.classList.remove('hidden');
+        loader.classList.remove('opacity-0');
+      }
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      
+      const htmlEl = document.documentElement;
+      htmlEl.setAttribute('lang', lang);
+      htmlEl.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+      const langLabel = document.getElementById('lang-label');
+      if (langLabel) {
+        langLabel.textContent = lang === 'ar' ? 'English' : 'العربية';
+      }
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          el.innerHTML = translations[lang][key];
+        }
+      });
+
+      const inputName = document.getElementById('input-name');
+      const inputMsg = document.getElementById('input-msg');
+      if (inputName) inputName.placeholder = translations[lang].ph_name;
+      if (inputMsg) inputMsg.placeholder = translations[lang].ph_msg;
+    }
+
+    // دالة تبديل وحفظ الثيم
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    window.addEventListener('load', () => {
+      hideLoadingScreen();
+    });
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // منع تحديث الصفحة
+
+    const form = e.target;
+    const responseDiv = document.getElementById('formResponse');
+    const submitBtn = document.getElementById('submitBtn');
+    const originalBtnText = submitBtn.innerText;
+    
+    // تغيير حالة الزر أثناء الإرسال لتبدو التجربة احترافية
+    submitBtn.innerText = "Sending...";
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = "0.7";
+
+    const formData = new FormData(form);
+
+    // استخدام Fetch API (ستعمل 100% لوجود HTTPS على GitHub)
+    fetch('https://web3forms.com', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        responseDiv.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'dark:bg-green-950/30', 'dark:text-green-400');
+        
+        if (data.success) {
+            // إظهار رسالة النجاح الخضراء بداخل موقعك دون الانتقال لأي مكان
+            responseDiv.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-950/30', 'dark:text-green-400');
+            responseDiv.innerText = "✓ Message sent successfully!";
+            form.reset(); // تفريغ الحقول
+        } else {
+            responseDiv.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-950/30', 'dark:text-red-400');
+            responseDiv.innerText = "✕ Error: " + data.message;
+        }
+    })
+    .catch(error => {
+        responseDiv.classList.remove('hidden');
+        responseDiv.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-950/30', 'dark:text-red-400');
+        responseDiv.innerText = "✕ Connection error. Please try again.";
+    })
+    .finally(() => {
+        // إعادة الزر لوضعه الطبيعي
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+    });
+});
+
+
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // تهيئة اللغة
+      setLanguage(currentLang);
+
+      // ربط زر تغيير الثيم
+      const themeBtn = document.getElementById('theme-toggle');
+      themeBtn?.addEventListener('click', toggleTheme);
+
+      // ربط زر تغيير اللغة
+      document.getElementById('lang-toggle')?.addEventListener('click', () => {
+        showLoadingScreen();
+        setTimeout(() => {
+          setLanguage(currentLang === 'en' ? 'ar' : 'en');
+          hideLoadingScreen();
+        }, 400);
+      });
+
+      // القائمة الجانبية في الهواتف
+      const menuToggleBtn = document.getElementById('menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const openIcon = document.getElementById('menu-icon-open');
+      const closeIcon = document.getElementById('menu-icon-close');
+      const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+      function toggleMenu() {
+        if (!mobileMenu) return;
+        const isHidden = mobileMenu.classList.contains('hidden');
+        if (isHidden) {
+          mobileMenu.classList.remove('hidden');
+          openIcon?.classList.add('hidden');
+          closeIcon?.classList.remove('hidden');
+        } else {
+          mobileMenu.classList.add('hidden');
+          openIcon?.classList.remove('hidden');
+          closeIcon?.classList.add('hidden');
+        }
+      }
+
+      menuToggleBtn?.addEventListener('click', toggleMenu);
+      mobileLinks.forEach(link => link.addEventListener('click', toggleMenu));
+
+      // أنيميشن GSAP
+      if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.from('.hero-anim', {
+          opacity: 0,
+          y: 35,
+          duration: 0.9,
+          stagger: 0.18,
+          ease: 'power3.out'
+        });
+
+        document.querySelectorAll('.gsap-reveal').forEach((el) => {
+          gsap.from(el, {
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse'
+            },
+            opacity: 0,
+            y: 40,
+            duration: 0.8,
+            ease: 'power3.out'
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>
