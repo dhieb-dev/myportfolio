@@ -374,12 +374,8 @@
 
           <!-- Contact Form -->
 <form id="contactForm" class="space-y-4 bg-slate-50 dark:bg-[#131b2e] p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
-    <!-- مفتاح الـ API الخاص بك -->
     <input type="hidden" name="access_key" value="d877440b-b040-4c6b-b808-96b65287b8ef">
     
-    <!-- حقل مدمج مطلوب من الخدمة لقراءة بيانات الـ JS -->
-    <input type="hidden" name="from_name" value="Portfolio Contact Form">
-
     <div>
         <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2" data-i18n="form_name">Your Name</label>
         <input type="text" name="name" id="input-name" placeholder="John Doe" class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-[#0b0f17] border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-400 transition" required>
@@ -395,14 +391,14 @@
         <textarea rows="4" name="message" id="input-msg" placeholder="How can I help you?" class="w-full px-4 py-3.5 rounded-xl bg-white dark:bg-[#0b0f17] border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-blue-600 dark:focus:border-cyan-400 transition" required></textarea>
     </div>
     
-    <!-- 💡 تم إضافة id="submitBtn" هنا ليتعرف عليه الـ JS -->
     <button type="submit" id="submitBtn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-500/20 dark:shadow-cyan-500/20 cursor-pointer" data-i18n="form_submit">
         Send Message
     </button>
     
-    <!-- 💡 تم إضافة id="formResponse" هنا ليظهر فيه نص النجاح أو الانتظار -->
+    <!-- مكان ظهور رسالة النجاح أو الخطأ للمستخدم (مخفية افتراضياً) -->
     <div id="formResponse" class="text-sm font-medium mt-2 p-3 rounded-xl hidden"></div>
 </form>
+
 
 
         </div>
@@ -575,64 +571,63 @@
       hideLoadingScreen();
     });
     
-const form = document.getElementById('contactForm');
-const responseDiv = document.getElementById('formResponse');
-const submitBtn = document.getElementById('submitBtn');
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // منع التحديث الافتراضي
 
-form.addEventListener('submit', function(e) {
-    e.preventDefault(); // منع تحديث الصفحة
-
+    const form = e.target;
+    const submitBtn = document.getElementById('submitBtn');
     const originalBtnText = submitBtn.innerText;
     
-    // تغيير حالة الزر أثناء الإرسال
-    submitBtn.innerText = "Sending...";
+    // تغيير حالة الزر أثناء المعالجة
+    submitBtn.innerText = "Processing...";
     submitBtn.disabled = true;
     submitBtn.style.opacity = "0.7";
 
-    // تحويل البيانات لـ JSON متوافق مع خوادم Web3Forms
+    // تجميع البيانات
     const formData = new FormData(form);
-    const object = Object.fromEntries(formData);
-    const json = JSON.stringify(object);
 
-    // تجهيز الديف وتصفير كلاساته القديمة
-    responseDiv.className = "text-sm font-medium mt-2 p-3 rounded-xl block bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400";
-    responseDiv.innerText = "Please wait...";
+    // 💡 الحل السحري: إرسال عبر XMLHttpRequest بدلاً من Fetch لتخطي حظر السيرفر المحلي
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "https://api.web3forms.com/submit", true);
+    xhr.setRequestHeader("Accept", "application/json");
 
-    // إرسال طلب الـ Fetch المتوافق مع HTTPS
-    fetch('https://web3forms.com', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: json
-    })
-    .then(async (response) => {
-        let res = await response.json();
+    xhr.onload = function () {
+        const responseDiv = document.getElementById('formResponse');
+        responseDiv.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'dark:bg-green-950/30', 'dark:text-green-400');
         
-        if (response.status === 200 && res.success) {
-            // كلاسات النجاح باللون الأخضر
-            responseDiv.className = "text-sm font-medium mt-2 p-3 rounded-xl block bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400";
-            responseDiv.innerText = "✓ Message sent successfully!";
-            form.reset(); // تفريغ المدخلات
-        } else {
-            // كلاسات الخطأ باللون الأحمر
-            responseDiv.className = "text-sm font-medium mt-2 p-3 rounded-xl block bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400";
-            responseDiv.innerText = "✕ Error: " + (res.message || "Failed to send");
-        }
-    })
-    .catch(error => {
-        // خطأ شبكة غير متوقع
-        responseDiv.className = "text-sm font-medium mt-2 p-3 rounded-xl block bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400";
-        responseDiv.innerText = "✕ Network error. Please try again.";
-    })
-    .finally(() => {
-        // إعادة الزر لوضعه الطبيعي ودعم الـ i18n
+        // إعادة الزر لوضعه الطبيعي
         submitBtn.innerText = originalBtnText;
         submitBtn.disabled = false;
         submitBtn.style.opacity = "1";
-    });
+
+        if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            if (data.success) {
+                responseDiv.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-950/30', 'dark:text-green-400');
+                responseDiv.innerText = "✓ Message sent successfully!";
+                form.reset(); // تفريغ الحقول
+            } else {
+                responseDiv.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-950/30', 'dark:text-red-400');
+                responseDiv.innerText = "✕ Error: " + data.message;
+            }
+        } else {
+            responseDiv.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-950/30', 'dark:text-red-400');
+            responseDiv.innerText = "✕ Server error. Please try again.";
+        }
+    };
+
+    xhr.onerror = function () {
+        // في حال استمر الحظر الأمني من السيرفر المحلي للهاتف تماماً
+        // سنقوم بالتحويل المباشر المضمون 100% كحل نهائي بديل
+        form.action = "https://api.web3forms.com/submit";
+        form.method = "POST";
+        form.submit(); // إرسال مباشر وتحديث الصفحة
+    };
+
+    // بدء الإرسال
+    xhr.send(formData);
 });
+
 
 
 // دالة الإنقاذ للإرسال المباشر عند حدوث أي خطأ أمني أو شبكي
